@@ -7,7 +7,7 @@
 
 	<include file="struts-default.xml" />
 	<package name="ynwi" extends="struts-default">
-		<action name="register" class="com.ynwi.ssh.action.RegisterAction">
+		<action name="registerTest" class="com.ynwi.ssh.action.RegisterTestAction">
 			<result name="input">/Register.jsp</result>
 			<result name="success">/Success.jsp</result>
 			<result name="error">/Fail.jsp</result>

@@ -14,8 +14,8 @@
 	<bean id="rsDaemon" class="com.hl.junit.RsDaemon"></bean>
 	<bean id="Haha" class="com.hl.demo.Haha"></bean>
 	<context:component-scan base-package="com.hl.demo" />
-	<bean id="loginAction" class="com.wzs.action.LoginAction" scope="prototype">
-		<property name="ms" ref="myService" />
+	
+	<bean id="regisAction" class="com.ynwi.ssh.action.RegisterTestAction" scope="prototype">
 	</bean>
 </beans>
 

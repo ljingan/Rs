@@ -5,7 +5,7 @@ import com.ynwi.ssh.beans.UserForm;
 import com.ynwi.ssh.service.UserManager;
 import com.ynwi.ssh.serviceImpl.UserManagerImpl;
 
-public class RegisterAction extends ActionSupport {
+public class RegisterTestAction extends ActionSupport {
 
 	private static final long serialVersionUID = 1L;
 
