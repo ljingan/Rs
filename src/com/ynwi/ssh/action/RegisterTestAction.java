@@ -65,6 +65,7 @@ public class RegisterTestAction extends ActionSupport {
 		User user = new User();
 		user.setName("����333gbgff");
 		user.setAccount("yy");
+		user.setDesc("ddfrfr");
 		loginDao.save(user);
 		try {
 			this.setUserManager(new UserManagerImpl());

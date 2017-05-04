@@ -31,6 +31,18 @@ public class User implements Serializable {
 
 	@Column
 	private String account;
+	
+
+	@Column
+	private String desc;
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
 
 	public String getAccount() {
 		return account;
