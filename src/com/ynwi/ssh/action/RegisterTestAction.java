@@ -1,5 +1,11 @@
 package com.ynwi.ssh.action;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.module.LoginDao;
+import com.module.user.entity.User;
 import com.opensymphony.xwork2.ActionSupport;
 import com.ynwi.ssh.beans.UserForm;
 import com.ynwi.ssh.service.UserManager;
@@ -7,6 +13,8 @@ import com.ynwi.ssh.serviceImpl.UserManagerImpl;
 
 public class RegisterTestAction extends ActionSupport {
 
+	@Autowired
+	private LoginDao loginDao;
 	private static final long serialVersionUID = 1L;
 
 	private UserForm user;
@@ -38,13 +46,29 @@ public class RegisterTestAction extends ActionSupport {
 	public String login() throws Exception {
 		// 调用业务逻辑组件的valid方法来
 		// 验证用户输入的用户名和密码是否正确
+		List<User> list = loginDao.loadAll();
+		// User users = loginDao.get(Long.valueOf(2));
+		// users.setName("iiiiiii");
+		// loginDao.update(users);
+		User user = new User();
+		user.setName("����333gbgff");
+		user.setAccount("yy");
+		loginDao.save(user);
 		return SUCCESS;
 	}
 
 	public String execute() {
+//		List<User> list = loginDao.loadAll();
+//		// User users = loginDao.get(Long.valueOf(2));
+//		// users.setName("iiiiiii");
+//		// loginDao.update(users);
+		User user = new User();
+		user.setName("����333gbgff");
+		user.setAccount("yy");
+		loginDao.save(user);
 		try {
 			this.setUserManager(new UserManagerImpl());
-			userManager.regUser(user);
+			//userManager.regUser(user);
 			return SUCCESS;
 
 		} catch (Exception e) {

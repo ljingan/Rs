@@ -4,7 +4,7 @@
 		<title>登录页面</title>
 	</head>
 	<body>
-		<form action="registerTest!login" method="post">
+		<form action="registerTest" method="post">
 			<table align="center">
 				<caption>
 					<h3>
