@@ -2,17 +2,24 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+        http://www.springframework.org/schema/tx
+	     http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-4.1.xsd
         http://www.springframework.org/schema/mvc
-        http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd">
+        http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
 
     <!-- 启动注解驱动的spring MVC功能,注册请求url和注解POJO类方法的映射-->
     <mvc:annotation-driven/>
     <!-- 对模型视图名称的解析,在请求时模型视图名称添加前后缀 -->
-    <context:component-scan base-package="com"/>
+    <context:component-scan base-package="com">
+    </context:component-scan>
 
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -31,10 +38,58 @@
     <mvc:interceptors>
         <mvc:interceptor>
             <!-- 匹配的是url路径， 如果不配置或/**,将拦截所有的Controller -->
-            <mvc:mapping path="/jsp/**" />
+            <mvc:mapping path="/jsp/**"/>
             <bean class="com.UserLoginInterceptor"></bean>
         </mvc:interceptor>
         <!-- 当设置多个拦截器时，先按顺序调用preHandle方法，然后逆序调用每个拦截器的postHandle和afterCompletion方法 -->
     </mvc:interceptors>
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>  <!--数据库连接驱动-->
+        <property name="jdbcUrl" value="${jdbc.url}"/>     <!--数据库地址-->
+        <property name="user" value="${jdbc.username}"/>   <!--用户名-->
+        <property name="password" value="${jdbc.password}"/>   <!--密码-->
+        <property name="maxPoolSize" value="${jdbc.maxPoolSize}"/>      <!--最大连接数-->
+        <property name="minPoolSize" value="${jdbc.minPoolSize}"/>       <!--最小连接数-->
+        <property name="initialPoolSize" value="${jdbc.initialPoolSize}"/>      <!--初始化连接池内的数据库连接-->
+        <property name="maxIdleTime" value="${jdbc.maxIdleTime}"/>  <!--最大空闲时间-->
+    </bean>
+
+
+    <!-- 配置hibernate的sessionFactory,并让spring的ioc进行管理 -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <!-- 配置数据源属性 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 引入hibernate的属性配置文件 -->
+        <property name="configLocation" value="classpath:hibernate.cfg.xml"></property>
+        <!-- 扫描实体类,将其映射为具体的数据库表 -->
+        <property name="packagesToScan" value="com"></property>
+    </bean>
+
+    <!-- 配置事务管理,采用Hibernate4 -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+
+    <!-- 配置事务传播属性,注意需要有事务管理(transaction-manager) : 其实就是事务(方法)发生的时间和要发生的故事-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="add*" propagation="REQUIRED"/>
+            <tx:method name="save*" propagation="REQUIRED"/>
+            <tx:method name="insert*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="load*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="query*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置事务切面,并关联事务的传播属性: 其实就是一个方法,只是这个方法是事务性的事务,它的发生不是随机的,而是具有时间,地点和该发生的故事的 -->
+    <aop:config>
+        <aop:advisor id="tx" advice-ref="txAdvice"
+                     pointcut="execution(* *..service..*Bean.*(..))" order="0"/>
+    </aop:config>
 
 </beans>
