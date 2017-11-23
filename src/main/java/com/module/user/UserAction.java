@@ -1,6 +1,9 @@
-package com;
+package com.module.user;
 
+import com.module.ResponseResult;
+import com.module.constants.StateCode;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,15 +15,18 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-
 @Controller
-public class LoginAction {
-    @RequestMapping(value = "login", method = RequestMethod.GET)
+public class UserAction {
+
+    @Autowired
+    private UserService userService;
+
+    @RequestMapping(value = "login", method = RequestMethod.POST)
     public ModelAndView loginManage() {
         return new ModelAndView("login");
     }
 
-    @RequestMapping(value = "index", method = RequestMethod.GET)
+    @RequestMapping(value = "index", method = RequestMethod.POST)
     public ModelAndView indexManage() {
         return new ModelAndView("index");
     }
@@ -30,12 +36,12 @@ public class LoginAction {
     String doLogin(@RequestParam(value = "username", required = true) String name,
                    @RequestParam(value = "password", required = true) String password,
                    HttpSession httpSession, Model model) {
-        System.out.print("ddd");
-        JSONObject json = new JSONObject();
-        json.put("state", 1);
-        json.put("msg", "succes");
-        String result = json.toString();
-        return result;
+        UserEntity user = userService.getUser(name);
+        if (user == null) {
+            return ResponseResult.Http_Error;
+        }
+        userService.saveUser();
+        return ResponseResult.Http_Success;
     }
 
     @RequestMapping(value = "/userLogin", method = RequestMethod.POST)
@@ -44,22 +50,5 @@ public class LoginAction {
                             HttpServletRequest request, Model model) {
         System.out.print("ddddd");
         return "d";
-//        User user = userBasic.getUserByName(userName);
-//        if (user != null) {
-//            if (user.getPassword().equals(password)) {
-//                HttpSession session = request.getSession();
-//                session.setAttribute("userName", userName);
-//                model.addAttribute("state", "success");
-//                model.addAttribute("message", "登录成功！");
-//                return "user_project";
-//            } else {
-//                model.addAttribute("failure", "用户名或密码错误！");
-//                return "error";
-//            }
-//        } else {
-//            model.addAttribute("state", "failure");
-//            model.addAttribute("message", "该用户不存在！");
-//            return "error";
-//        }
     }
 }
