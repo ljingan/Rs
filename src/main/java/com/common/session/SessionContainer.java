@@ -31,7 +31,7 @@ public interface SessionContainer<T> {
 	/**
 	 * 删除session
 	 * 
-	 * @param sessionId
+	 * @param connection
 	 *            会话ID
 	 * @return 返回会话信息:Session<IoSession>
 	 */

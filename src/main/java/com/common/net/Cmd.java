@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Cmd {
-	public int id() default -1;
-	public Class<?> protoClass();
+
+    public int id() default -1;
+
+    public Class<?> protoClass();
 }

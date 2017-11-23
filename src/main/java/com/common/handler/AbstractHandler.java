@@ -17,7 +17,7 @@ public abstract class AbstractHandler implements Handler {
 		initialize();
 	}
 
-	public void initialize() {
+	private void initialize() {
 
 		for (Method m : this.getClass().getDeclaredMethods()) {
 			Cmd cmd = m.getAnnotation(Cmd.class);
