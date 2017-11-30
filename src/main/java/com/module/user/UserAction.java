@@ -1,5 +1,6 @@
 package com.module.user;
 
+import com.ServerEntry;
 import com.module.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,6 +36,7 @@ public class UserAction {
                    @RequestParam(value = "password", required = true) String password,
                    HttpSession httpSession, Model model) {
         UserEntity user = userService.getUser(name);
+
         if (user == null) {
             return ResponseResult.Http_Error;
         }

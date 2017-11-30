@@ -47,6 +47,9 @@
     <listener>
         <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>com.PreloadListener</listener-class>
+    </listener>
     <session-config>
         <!--会话超时分钟数-->
         <session-timeout>20</session-timeout>

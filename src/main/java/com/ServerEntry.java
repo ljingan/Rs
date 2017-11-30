@@ -12,13 +12,34 @@ public class ServerEntry {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerBootStrap.class);
 
+    public static void main(String[] args) {
+//        log.error("start server.....");
+        Context context = new Context();
+        context.initialize();
+        logger.error("start server socket...");
+//        init();
+    }
+
     @PostConstruct
+    private void initialsize() {
+        new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                    System.out.println("start start start start");
+                    init();
+                } catch (InterruptedException e) {
+                }
+            }
+        }.start();
+    }
+
+//    @PostConstruct
     public void init() {
         logger.error("start server.....");
         try {
-            Thread.sleep(10000);
             final ServerBootStrap bootstrap = new ServerBootStrap();
-            bootstrap.start(20006);
+            bootstrap.start(8099);
             logger.error("finish start server socket...");
             logger.error("finish start server.....");
 

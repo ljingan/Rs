@@ -82,20 +82,20 @@ public class ServerBootStrap {
         workerGroup.shutdownGracefully();
     }
 
-    public static void main(String[] args) throws Exception {
-        logger.error("start server.....");
-        try {
-            final ServerBootStrap bootstrap = new ServerBootStrap();
-            bootstrap.start(8099);
-            logger.error("finish start server socket...");
-            logger.error("finish start server.....");
-            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                public void run() {
-                    bootstrap.stop();
-                }
-            }));
-        } catch (Exception e) {
-            logger.error("server error", e);
-        }
-    }
+//    public static void main(String[] args) throws Exception {
+//        logger.error("start server.....");
+//        try {
+//            final ServerBootStrap bootstrap = new ServerBootStrap();
+//            bootstrap.start(8099);
+//            logger.error("finish start server socket...");
+//            logger.error("finish start server.....");
+//            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+//                public void run() {
+//                    bootstrap.stop();
+//                }
+//            }));
+//        } catch (Exception e) {
+//            logger.error("server error", e);
+//        }
+//    }
 }
