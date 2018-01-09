@@ -10,7 +10,6 @@ import io.netty.handler.codec.CorruptedFrameException;;import java.util.List;
 public class MessageDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-
         if (in.readableBytes() < DataPackage.PACKAGE_HEAD_LENGTH) {
             return;
         }
@@ -43,8 +42,8 @@ public class MessageDecoder extends ByteToMessageDecoder {
                 pack.setBytes(data);
                 out.add(pack);//正确读取返回
             } else {
-                in.re
-                buff.setPosition(position);
+//                in.re
+//                buff.setPosition(position);
                 break;
             }
         }
