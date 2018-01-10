@@ -14,10 +14,10 @@ public class ServerEntry {
 
     public static void main(String[] args) {
 //        log.error("start server.....");
-        Context context = new Context();
-        context.initialize();
+//        Context context = new Context();
+//        context.initialize();
         logger.error("start server socket...");
-//        init();
+        init();
     }
 
     @PostConstruct
@@ -35,11 +35,11 @@ public class ServerEntry {
     }
 
 //    @PostConstruct
-    public void init() {
+    public static void init() {
         logger.error("start server.....");
         try {
             final ServerBootStrap bootstrap = new ServerBootStrap();
-            bootstrap.start(8099);
+            bootstrap.start(8085);
             logger.error("finish start server socket...");
             logger.error("finish start server.....");
 

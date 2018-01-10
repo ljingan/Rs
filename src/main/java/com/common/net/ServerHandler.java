@@ -34,61 +34,43 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             throws Exception {
         getSession(ctx.channel());
         System.out.println("SimpleServerHandler.channelRead");
-        ByteBuf result = (ByteBuf) msg;
-        byte[] bytes = result.array();
-        ByteArray buff = new ByteArray();
-        buff.write(bytes, result.readableBytes());
-        buff.setPosition(0);
-        unPack(buff);
-        // // msg中存储的是ByteBuf类型的数据，把数据读取到byte[]中
-        // result.readBytes(result1);
-        // String resultStr = new String(result1);
-        // // 接收并打印客户端的信息
-        // System.out.println("Client said:" + resultStr);
-        // // 释放资源，这行很关键
-        // result.release();
-        //
-        // // 向客户端发送消息
-        // String response = "hello client!";
-        // // 在当前场景下，发送的数据必须转换成ByteBuf数组
-        // ByteBuf encoded = ctx.alloc().buffer(4 * response.length());
-        // encoded.writeBytes(response.getBytes());
-        // ctx.write(encoded);
-        // ctx.flush();
+        DataPackage pack = (DataPackage)msg;
+        Handler handler = Dispatcher.get(pack.getCmd());
+        handler.exceute(pack);
     }
 
-    // 解包
-    private boolean unPack(ByteArray buff) {
-        ArrayList<DataPackage> list = new ArrayList<DataPackage>();
-        while (buff.available() >= DataPackage.PACKAGE_HEAD_LENGTH) {
-            int position = buff.getPosition();
-            int size = buff.readShort();
-            if (buff.available() + 2 >= size) {
-                DataPackage pack = new DataPackage();
-                pack.setSize(size);
-                pack.setIsZip(buff.readByte());
-                pack.setCmd(buff.readShort());
-                int len = size - DataPackage.PACKAGE_HEAD_LENGTH;
-                byte[] data = new byte[len];
-                buff.readBytes(data, 0, len);
-                pack.setBytes(data);
-                list.add(pack);
-            } else {
-                buff.setPosition(position);
-                break;
-            }
-        }
-        if (buff.available() == 0) {
-            buff.clear();
-        }
-        Iterator<DataPackage> it = list.iterator();
-        while (it.hasNext()) {
-            DataPackage pack = it.next();
-            Handler handler = Dispatcher.get(pack.getCmd());
-            handler.exceute(pack);
-        }
-        return true;
-    }
+//    // 解包
+//    private boolean unPack(ByteArray buff) {
+//        ArrayList<DataPackage> list = new ArrayList<DataPackage>();
+//        while (buff.available() >= DataPackage.PACKAGE_HEAD_LENGTH) {
+//            int position = buff.getPosition();
+//            int size = buff.readShort();
+//            if (buff.available() + 2 >= size) {
+//                DataPackage pack = new DataPackage();
+//                pack.setSize(size);
+//                pack.setIsZip(buff.readByte());
+//                pack.setCmd(buff.readShort());
+//                int len = size - DataPackage.PACKAGE_HEAD_LENGTH;
+//                byte[] data = new byte[len];
+//                buff.readBytes(data, 0, len);
+//                pack.setBytes(data);
+//                list.add(pack);
+//            } else {
+//                buff.setPosition(position);
+//                break;
+//            }
+//        }
+//        if (buff.available() == 0) {
+//            buff.clear();
+//        }
+//        Iterator<DataPackage> it = list.iterator();
+//        while (it.hasNext()) {
+//            DataPackage pack = it.next();
+//            Handler handler = Dispatcher.get(pack.getCmd());
+//            handler.exceute(pack);
+//        }
+//        return true;
+//    }
 
     /*
      *
