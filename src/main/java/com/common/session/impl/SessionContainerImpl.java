@@ -8,8 +8,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.common.session.Session;
 import com.common.session.SessionContainer;
 import com.common.session.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SessionContainerImpl<T> implements SessionContainer<T> {
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Map<T, Session<T>> sessionsMap = new ConcurrentHashMap<T, Session<T>>(
 			2000);
@@ -32,6 +36,7 @@ public class SessionContainerImpl<T> implements SessionContainer<T> {
 				.createSession(connection, sessionId);
 		sessionsMap.put(connection, session);
 		sessionsIdMap.put(sessionId, session);
+		logger.info("addSession sessionId:{}", sessionId);
 		return session;
 	}
 
@@ -74,6 +79,8 @@ public class SessionContainerImpl<T> implements SessionContainer<T> {
 		long sessionId = session.getSessionId();
 		sessionsMap.remove(session.getConnection());
 		sessionsIdMap.remove(sessionId);
+		session.clear();
+		logger.info("removeSession sessionId:{}", sessionId);
 		return session;
 	}
 

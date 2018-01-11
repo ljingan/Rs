@@ -1,8 +1,10 @@
 package com.common.handler;
 
-import com.common.net.DataPackage;
+import com.common.net.Request;
+import com.common.net.Response;
 
 public interface Handler {
-	void exceute(DataPackage pack);
-	void clear();
+    void exceute(Request request, Response response);
+
+    void clear();
 }

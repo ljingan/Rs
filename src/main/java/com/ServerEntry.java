@@ -1,5 +1,6 @@
 package com;
 
+import com.common.handler.UserHandler;
 import com.common.net.ServerBootStrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +39,9 @@ public class ServerEntry {
     public static void init() {
         logger.error("start server.....");
         try {
+            new UserHandler();
             final ServerBootStrap bootstrap = new ServerBootStrap();
-            bootstrap.start(8085);
+            bootstrap.start(8099);
             logger.error("finish start server socket...");
             logger.error("finish start server.....");
 

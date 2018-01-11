@@ -1,13 +1,8 @@
 package com;
 
 import com.C2S.C2SPtl;
-import com.common.net.ByteArray;
-import com.common.net.DataPackage;
+import com.common.net.BasePackage;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -36,7 +31,7 @@ public class TcpClient {
             ByteBuffer buffer = ByteBuffer.allocate(size);
             byte isZip = 0;
             int cmd = 1109;
-            buffer.putShort(DataPackage.PACKAGE_HEAD_IDENTIFYING);
+            buffer.putShort(BasePackage.PACKAGE_HEAD_IDENTIFYING);
             buffer.putShort((short) size);
             buffer.put(isZip);
             buffer.putInt(cmd);
@@ -70,7 +65,7 @@ public class TcpClient {
 //            builder.setId(12345);
 //            C2SPtl.C2SLogin login = builder.build();
 //            byte[] body = login.toByteArray();
-//            bos.writeShort(DataPackage.PACKAGE_HEAD_IDENTIFYING);
+//            bos.writeShort(BasePackage.PACKAGE_HEAD_IDENTIFYING);
 //            int size = 2 + 2 + 1 + 4 + body.length;
 //            byte isZip = 0;
 //            int cmd = 1109;

@@ -84,4 +84,9 @@ public interface Session<T> {
 	 * @return
 	 */
 	Set<String> getAttributeNames();
+
+	/**
+	 * 清理
+	 */
+	void clear();
 }

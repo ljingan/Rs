@@ -5,7 +5,6 @@ import com.common.handler.Handler;
 import com.common.session.ServerContext;
 import com.common.session.Session;
 import com.common.session.impl.ServerContextImpl;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -13,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter {
     private final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
@@ -32,45 +29,32 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
-        getSession(ctx.channel());
-        System.out.println("SimpleServerHandler.channelRead");
-        DataPackage pack = (DataPackage)msg;
-        Handler handler = Dispatcher.get(pack.getCmd());
-        handler.exceute(pack);
+        Session session = getSession(ctx.channel());
+        Request request = (Request) msg;
+        request.setSession(session);
+        doExcecute(request);
     }
 
-//    // 解包
-//    private boolean unPack(ByteArray buff) {
-//        ArrayList<DataPackage> list = new ArrayList<DataPackage>();
-//        while (buff.available() >= DataPackage.PACKAGE_HEAD_LENGTH) {
-//            int position = buff.getPosition();
-//            int size = buff.readShort();
-//            if (buff.available() + 2 >= size) {
-//                DataPackage pack = new DataPackage();
-//                pack.setSize(size);
-//                pack.setIsZip(buff.readByte());
-//                pack.setCmd(buff.readShort());
-//                int len = size - DataPackage.PACKAGE_HEAD_LENGTH;
-//                byte[] data = new byte[len];
-//                buff.readBytes(data, 0, len);
-//                pack.setBytes(data);
-//                list.add(pack);
-//            } else {
-//                buff.setPosition(position);
-//                break;
-//            }
-//        }
-//        if (buff.available() == 0) {
-//            buff.clear();
-//        }
-//        Iterator<DataPackage> it = list.iterator();
-//        while (it.hasNext()) {
-//            DataPackage pack = it.next();
-//            Handler handler = Dispatcher.get(pack.getCmd());
-//            handler.exceute(pack);
-//        }
-//        return true;
-//    }
+    private void write(Response response) {
+        Session<Channel> session = response.getSession();
+        Channel channel = session.getConnection();
+        channel.write(response);
+    }
+
+    /**
+     * 消息处理
+     *
+     * @param request
+     */
+    private void doExcecute(Request request) {
+        Response response = new Response(request);
+        response.setBytes(request.getBytes());
+        Handler handler = Dispatcher.get(request.getCmd());
+        if (handler != null) {
+            handler.exceute(request, response);
+        }
+        write(response);
+    }
 
     /*
      *
@@ -80,10 +64,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
-        System.out.println("RamoteAddress : " + ctx.channel().remoteAddress()
-                + " active !  ");
-
+        Session session = getSession(ctx.channel());
+        logger.info("channelActive sessionId:{}, RamoteAddress:{}", session.getSessionId(), ctx.channel().remoteAddress());
         ctx.writeAndFlush("Welcome to "
                 + InetAddress.getLocalHost().getHostName() + " service!\n");
 
@@ -91,15 +73,25 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        Session session = getSession(ctx.channel());
+        logger.info("channelInactive sessionId:{}", session.getSessionId());
+        serverContext.removeSession(session);
+        super.channelInactive(ctx);
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
         // 当出现异常就关闭连接
-        cause.printStackTrace();
+//        cause.printStackTrace();
         ctx.close();
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        Session session = getSession(ctx.channel());
+        logger.info("channelReadComplete sessionId:{}, RamoteAddress:{}", session.getSessionId(), ctx.channel().remoteAddress());
         ctx.flush();
     }
 }

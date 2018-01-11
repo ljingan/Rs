@@ -1,7 +1,7 @@
 package com.common.net.codec;
 
-import com.sun.org.apache.xml.internal.serializer.Serializer;
-import com.sun.org.apache.xml.internal.serializer.SerializerFactory;
+import com.common.net.BasePackage;
+import com.common.net.Response;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -11,32 +11,28 @@ import org.slf4j.LoggerFactory;
 public class MessageEncoder<T> extends MessageToByteEncoder {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final byte type = 0X00;
-    private final byte flag = 0X0F;
-
-//    private Serializer serializer = SerializerFactory.getSerializer();
-    private Class<T> clazz;
-
     public MessageEncoder() {
-//        this.clazz = clazz;
     }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg,
                           ByteBuf out) throws Exception {
-
-//        try {
-//            out.writeByte(type);
-//            out.writeByte(flag);
-//
-//            byte[] data = serializer.encode(msg);
-//            out.writeInt(data.length);
-//            out.writeBytes(data);
-//
-//            //logger.info("write type:{}, flag:{}, length:{}", type, flag, data.length);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        if (!(msg instanceof Response)) {
+            logger.info("encode msg:{}", msg);
+        }
+        Response response = (Response) msg;
+        try {
+            out.writeShort(BasePackage.PACKAGE_HEAD_IDENTIFYING);
+            out.writeShort(response.getSize());
+            out.writeByte(response.getIsZip());
+            out.writeInt(response.getCmd());
+            out.writeShort(response.getStatus());
+            out.writeBytes(response.getBytes());
+            logger.info("encode cmd:{}, size:{}, status:{}", response.getCmd(), response.getSize(), response.getStatus());
+        } catch (Exception e) {
+            logger.info("encode error " + e.toString());
+            e.printStackTrace();
+        }
 
     }
 }

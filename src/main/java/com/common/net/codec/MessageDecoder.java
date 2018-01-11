@@ -1,47 +1,42 @@
 package com.common.net.codec;
 
-import com.common.net.DataPackage;
+import com.common.net.BasePackage;
+import com.common.net.Request;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.CorruptedFrameException;;import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+;import java.util.List;
 
 public class MessageDecoder extends ByteToMessageDecoder {
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        System.out.print("ffffff");
-//        int dataLength = in.readInt();       // 读取传送过来的消息的长度。ByteBuf 的readInt()方法会让他的readIndex增加4
-//        if (dataLength < 0) { // 我们读到的消息体长度为0，这是不应该出现的情况，这里出现这情况，关闭连接。
-//            ctx.close();
-//        }
-//        if (in.readableBytes() < dataLength) { //读到的消息体长度如果小于我们传送过来的消息长度，则resetReaderIndex. 这个配合markReaderIndex使用的。把readIndex重置到mark的地方
-//            in.resetReaderIndex();
-//            return;
-//        }
-
-//        byte[] body = new byte[dataLength];  //  嗯，这时候，我们读到的长度，满足我们的要求了，把传送过来的数据，取出来吧~~
-//        in.readBytes(body);
+        logger.info("decode  remoteAddress:{}", ctx.channel().remoteAddress());
         while (true) {
-            if (!in.isReadable() || in.readableBytes() < DataPackage.PACKAGE_HEAD_LENGTH) {
+            if (!in.isReadable() || in.readableBytes() < Request.PACKAGE_HEAD_LENGTH) {
                 return;
             }
-            in.markReaderIndex();                  //一下当前的readIndex的位置
+            in.markReaderIndex();                  //标记一下当前的readIndex的位置
             short packID = in.readShort();
-            if (packID != DataPackage.PACKAGE_HEAD_IDENTIFYING) {
+            if (packID != BasePackage.PACKAGE_HEAD_IDENTIFYING) {
                 return;
             }
             int position = in.readerIndex();
             short size = in.readShort();
             if (in.readableBytes() >= size - 4 && size > 4) {
-                int len = size - DataPackage.PACKAGE_HEAD_LENGTH;
-                DataPackage pack = new DataPackage();
-                pack.setSize(len);
-                pack.setIsZip(in.readByte());
-                pack.setCmd(in.readInt());
+                int len = size - Request.PACKAGE_HEAD_LENGTH;
+                Request request = new Request();
+                request.setSize(len);
+                request.setIsZip(in.readByte());
+                request.setCmd(in.readInt());
                 byte[] data = new byte[len];
                 in.readBytes(data, 0, len);
-                pack.setBytes(data);
-                out.add(pack);//正确读取返回
+                request.setBytes(data);
+                out.add(request);//正确读取返回
+                logger.info("decode  remoteAddress:{}, readableBytes:{},  cmd:{}, size:{},", ctx.channel().remoteAddress(), in.readableBytes(), request.getCmd(), request.getSize());
             } else {
                 in.resetReaderIndex();
                 return;
