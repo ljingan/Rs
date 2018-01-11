@@ -36,7 +36,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
                 in.readBytes(data, 0, len);
                 request.setBytes(data);
                 out.add(request);//正确读取返回
-                logger.info("decode  remoteAddress:{}, readableBytes:{},  cmd:{}, size:{},", ctx.channel().remoteAddress(), in.readableBytes(), request.getCmd(), request.getSize());
+                logger.info("decode  remoteAddress:{}, readableBytes:{},  cmd:{}, size:{}, position:{}", ctx.channel().remoteAddress(), in.readableBytes(), request.getCmd(), request.getSize(), position);
             } else {
                 in.resetReaderIndex();
                 return;
