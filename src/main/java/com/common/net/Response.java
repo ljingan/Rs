@@ -1,5 +1,7 @@
 package com.common.net;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * 服务端回复对象
  */
@@ -14,6 +16,11 @@ public class Response extends BasePackage {
      * 响应标识
      */
     private int status = 0;
+
+    /**
+     * proto class
+     */
+    private Class<?> protoClass;
 
     public Response(Request request) {
         this.setCmd(request.getCmd());
@@ -33,4 +40,13 @@ public class Response extends BasePackage {
     public int getSize() {
         return PACKAGE_HEAD_LENGTH + (getBytes() == null ? 0 : getBytes().length);
     }
+
+    public void setProtoClass(Class<?> protoClass) {
+        this.protoClass = protoClass;
+    }
+
+    public Class<?> getProtoClass() {
+        return protoClass;
+    }
+
 }

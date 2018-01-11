@@ -11,5 +11,7 @@ public @interface Cmd {
 
     public int id() default -1;
 
-    public Class<?> protoClass();
+    public Class<?> requestProtoClass();
+
+    public Class<?> responseProtoClass();
 }

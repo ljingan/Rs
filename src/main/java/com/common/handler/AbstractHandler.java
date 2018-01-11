@@ -14,8 +14,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractHandler implements Handler {
 
-    private Map<Integer, Method> cmds = new ConcurrentHashMap<Integer, Method>();
-    private Map<Integer, Class<?>> protos = new ConcurrentHashMap<Integer, Class<?>>();
+    class CmdPack {
+        int cmd = 0;
+        Class<?> requestProtoClass;
+        Class<?> responseProtoClass;
+        Method method;
+
+        CmdPack(int cmd, Method method, Class<?> requestProtoClass, Class<?> responseProtoClass) {
+            this.cmd = cmd;
+            this.requestProtoClass = requestProtoClass;
+            this.responseProtoClass = responseProtoClass;
+            this.method = method;
+        }
+    }
+
+    private Map<Integer, CmdPack> cmds = new ConcurrentHashMap<Integer, CmdPack>();
 
     public AbstractHandler() {
         initialize();
@@ -26,8 +39,8 @@ public abstract class AbstractHandler implements Handler {
         for (Method m : this.getClass().getDeclaredMethods()) {
             Cmd cmd = m.getAnnotation(Cmd.class);
             if (cmd != null) {
-                cmds.put(cmd.id(), m);
-                protos.put(cmd.id(), cmd.protoClass());
+                CmdPack cmdPack = new CmdPack(cmd.id(), m, cmd.requestProtoClass(), cmd.responseProtoClass());
+                cmds.put(cmd.id(), cmdPack);
                 Dispatcher.put(cmd.id(), this);
             }
         }
@@ -35,15 +48,15 @@ public abstract class AbstractHandler implements Handler {
 
     @Override
     public void exceute(Request request, Response response) {
-        Method m = cmds.get(request.getCmd());
-        Class<?> cl = protos.get(request.getCmd());
-        if (m != null && cl != null) {
+        CmdPack cmdPack = cmds.get(request.getCmd());
+        if (cmdPack.method != null && cmdPack.requestProtoClass != null) {
             try {
-                Method parseMethod = cl.getMethod("parseFrom",
+                Method parseMethod = cmdPack.requestProtoClass.getMethod("parseFrom",
                         byte[].class);
                 Object data = parseMethod.invoke(null, request.getBytes());
                 request.setData(data);
-                m.invoke(this, request);
+                response.setProtoClass(cmdPack.responseProtoClass);
+                cmdPack.method.invoke(this, request, response);
             } catch (IllegalArgumentException e) {
             } catch (IllegalAccessException e) {
             } catch (InvocationTargetException e) {
