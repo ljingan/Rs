@@ -1,7 +1,10 @@
-package com.common.net;
+package com.common.net.test;
 
 import com.common.handler.Dispatcher;
 import com.common.handler.Handler;
+import com.common.net.BasePackage;
+import com.common.net.ByteArray;
+import com.common.net.Request;
 import com.common.session.ServerContext;
 import com.common.session.Session;
 import com.common.session.impl.ServerContextImpl;
